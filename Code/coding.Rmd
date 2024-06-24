@@ -1,0 +1,135 @@
+---
+title: "Coding"
+author: "Elvin Mammadov"
+date: "2024-06-24"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+
+
+```{r}
+# Load packages that we will use
+library(ggplot2)  
+library(ggcorrplot)
+library(stargazer)
+library(foreign)
+library(xtable)
+library(plm)
+library(Amelia)
+
+```
+
+
+
+
+
+
+
+
+
+
+
+```{r initial data cleaning}
+#Loading our housing data for Dresden
+house_rent <- read.csv("Data/house_rent_dresden.csv", header = T, sep=(";"))
+
+print(house_rent)
+
+#Unselecting the unnecessary columns and columns that have more NA values
+house_rent <- house_rent[, !names(house_rent) %in% c("OBJECTID_1", "Join_Count", "TARGET_FID", "OBJECTID_2", "Join_Cou_1", "TARGET_F_1", "Join_Cou_2", "TARGET_F_2" , "Nutzflaech", "Balkon_Ter", "Aufzug", "Einbaukuec", "Barrierefr", "Befeuerung", "SCHIsopha",  "SCHIsophp" , "SCHfarbwer" ,"l_datum",    "esri_oid" ,"SCHanight"  ,"SCHpnight" , "SCHfnight",  "l_datum_1" , "esri_oid_1", "OBJECTID", "Ortsname", "STVdayPege", "Adresse_Ge", "Email_Kont", "Bemerkung")]
+
+
+#In our data some values inside the column mixed as character, numeric or empty, so firstly I try find how many empty values after I change this to NA and some numbers with comma to dot.(R does not understand comma as number) In the end I check the amount of empty columns with amount of NA.
+# Convert for Schlafzimm
+sum(house_rent$Schlafzimm == "") # 54
+
+house_rent$Schlafzimm <- gsub(",", ".", house_rent$Schlafzimm)
+house_rent$Schlafzimm <- as.numeric(house_rent$Schlafzimm)
+sum(is.na(house_rent$Schlafzimm)) # 54
+
+# Convert for Kaltmiete
+sum(house_rent$Kaltmiete == "") # 0
+
+house_rent$Kaltmiete <- gsub(",", ".", house_rent$Kaltmiete)
+house_rent$Kaltmiete <- as.numeric(house_rent$Kaltmiete)
+sum(is.na(house_rent$Kaltmiete)) # 0
+
+# Convert for Wohnflaech
+sum(house_rent$Wohnflaech == "") # 0
+
+house_rent$Wohnflaech <- gsub(",", ".", house_rent$Wohnflaech)
+house_rent$Wohnflaech <- as.numeric(house_rent$Wohnflaech)
+sum(is.na(house_rent$Wohnflaech)) # 0 
+
+
+# Convert for Zimmer
+sum(house_rent$Zimmer == "") # 1
+
+house_rent$Zimmer <- gsub(",", ".", house_rent$Zimmer)
+house_rent$Zimmer <- as.numeric(house_rent$Zimmer)
+sum(is.na(house_rent$Zimmer)) # 1
+
+# Convert for Badezimmer
+sum(house_rent$Badezimmer == "") # 26
+
+house_rent$Badezimmer <- gsub(",", ".", house_rent$Badezimmer)
+house_rent$Badezimmer <- as.numeric(house_rent$Badezimmer)
+sum(is.na(house_rent$Badezimmer)) # 26
+
+# Convert for Etage
+sum(house_rent$Etage == "") # 43
+
+house_rent$Etage <- gsub(",", ".", house_rent$Etage)
+house_rent$Etage <- as.numeric(house_rent$Etage)
+sum(is.na(house_rent$Etage)) # 43
+
+# Convert for Etagenanza
+sum(house_rent$Etagenanza == "") # 43
+
+house_rent$Etagenanza <- gsub(",", ".", house_rent$Etagenanza)
+house_rent$Etagenanza <- as.numeric(house_rent$Etagenanza)
+sum(is.na(house_rent$Etagenanza)) # 43
+
+
+#Grundstuec
+sum(house_rent$Grundstuec == "") # 10
+
+house_rent$Grundstuec <- gsub(",", ".", house_rent$Grundstuec)
+house_rent$Grundstuec <- as.numeric(house_rent$Grundstuec)
+sum(is.na(house_rent$Grundstuec)) # 10
+
+#Gaeste_WC
+
+sum(house_rent$Gaeste_WC == "") # 65
+
+house_rent$Gaeste_WC <- gsub(",", ".", house_rent$Gaeste_WC)
+house_rent$Gaeste_WC <- as.numeric(house_rent$Gaeste_WC)
+sum(is.na(house_rent$Gaeste_WC)) # 65
+
+#Anzahl_Gar
+sum(house_rent$Anzahl_Gar == "") # 53
+
+house_rent$Anzahl_Gar <- gsub(",", ".", house_rent$Anzahl_Gar)
+house_rent$Anzahl_Gar <- as.numeric(house_rent$Anzahl_Gar)
+sum(is.na(house_rent$Anzahl_Gar)) # 53
+
+
+#For the dates, I converted from as numeric to as date
+house_rent$Datum <- as.Date(house_rent$Datum, format = "%d.%m.%Y")
+
+
+```
+
+
+
+
+
+
+
+
+
